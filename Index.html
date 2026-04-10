@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="../icons/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="../icons/icon16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="../icons/icon32.png">
+  <link rel="apple-touch-icon" href="../icons/icon32.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Cleaner Bookmarklet</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --border: #334155;
+      --danger: #f59e0b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      line-height: 1.1;
+      margin: 0 0 10px;
+    }
+
+    p {
+      margin: 0 0 16px;
+      color: var(--text);
+    }
+
+    .lede {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 70ch;
+    }
+
+    .card {
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      margin-top: 22px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .bookmarklet-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin: 16px 0 8px;
+    }
+
+    .bookmarklet {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      padding: 14px 18px;
+      border-radius: 999px;
+      border: 0;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+      cursor: grab;
+      user-select: none;
+    }
+
+    .bookmarklet:active {
+      cursor: grabbing;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .button:hover,
+    .bookmarklet:hover {
+      filter: brightness(1.06);
+    }
+
+    .small {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    code,
+    textarea,
+    input {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    textarea,
+    input {
+      width: 100%;
+      background: #020617;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    @media (min-width: 800px) {
+      .grid.two {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .label {
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .status {
+      margin-top: 10px;
+      color: var(--accent-2);
+      min-height: 1.4em;
+      font-weight: 600;
+    }
+
+    ol {
+      padding-left: 20px;
+      margin: 12px 0 0;
+      color: var(--muted);
+    }
+
+    li { margin-bottom: 8px; }
+
+    .pill {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #bae6fd;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 6px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .warning {
+      color: #fde68a;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-top: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="pill">Bookmarklet Installer</div>
+    <h1>URL Cleaner</h1>
+    <p class="lede">
+      Install a bookmarklet that aggressively strips a page URL down to its essentials. It removes hashes, normalizes the domain, and drops nearly all query parameters by default, while keeping only a tiny allowlist for a few sites where parameters are usually required.
+    </p>
+
+    <section class="card">
+      <h2>Install</h2>
+      <p>Drag this button to your bookmarks bar:</p>
+
+      <div class="bookmarklet-row">
+        <a id="bookmarkletLink" class="bookmarklet" href="#" draggable="true">
+          <img src="../icons/icon32.png" alt="" style="width:18px;height:18px;vertical-align:middle;margin-right:6px;border-radius:4px;">
+          URL Cleaner
+        </a>
+        <button id="copyBookmarklet" class="button" type="button">Copy bookmarklet code</button>
+      </div>
+
+      <p class="small">If dragging does not work, copy the code and paste it into a new bookmark’s URL field.</p>
+
+      <div class="warning">
+        Some browsers hide the bookmarks bar by default. In many browsers, <strong>Ctrl+Shift+B</strong> toggles it.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>What it does</h2>
+      <div class="grid two">
+        <div>
+          <label class="label" for="sampleInput">Sample messy URL</label>
+          <input id="sampleInput" type="text" value="https://www.example.com/page/?utm_source=newsletter&utm_medium=email&fbclid=abc123&id=42#section-two" />
+        </div>
+        <div>
+          <label class="label" for="sampleOutput">Cleaned result</label>
+          <input id="sampleOutput" type="text" readonly />
+        </div>
+      </div>
+      <div style="margin-top: 12px;">
+        <button id="runPreview" class="button" type="button">Preview cleanup</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Bookmarklet code</h2>
+      <textarea id="bookmarkletCode" readonly></textarea>
+      <div style="margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap;">
+        <button id="copyCode" class="button" type="button">Copy code</button>
+      </div>
+      <div id="copyStatus" class="status"></div>
+    </section>
+
+    <section class="card">
+      <h2>How to use it</h2>
+      <ol>
+        <li>Install the bookmarklet.</li>
+        <li>Go to any page with an ugly URL.</li>
+        <li>Click <strong>URL Cleaner</strong> in your bookmarks bar.</li>
+        <li>The cleaned URL is copied to your clipboard and also shown in a popup.</li>
+        <li>It is intentionally aggressive and may remove parameters some sites use for state or special views.</li>
+      </ol>
+    </section>
+  </div>
+
+  <script>
+    function cleanUrlString(input) {
+      try {
+        let current = input;
+
+        for (let depth = 0; depth < 3; depth++) {
+          const probe = new URL(current);
+          const nested =
+            probe.searchParams.get('share_url') ||
+            probe.searchParams.get('u') ||
+            probe.searchParams.get('url');
+
+          if (nested && /^https?:/i.test(decodeURIComponent(nested))) {
+            current = decodeURIComponent(nested);
+            continue;
+          }
+          break;
+        }
+
+        const url = new URL(current);
+        url.protocol = 'https:';
+        url.hostname = url.hostname
+          .replace(/^www\./i, '')
+          .replace(/^m\./i, '')
+          .toLowerCase();
+
+        const keepByHost = [
+          { pattern: /(^|\.)youtube\.com$/i, keep: new Set(['v', 'list']) },
+          { pattern: /(^|\.)youtu\.be$/i, keep: new Set() },
+          { pattern: /(^|\.)google\.com$/i, keep: new Set(['q']) },
+          { pattern: /(^|\.)maps\.google\.com$/i, keep: new Set(['q']) },
+          { pattern: /(^|\.)amazon\.com$/i, keep: new Set(['k']) }
+        ];
+
+        let keepParams = new Set();
+        for (const rule of keepByHost) {
+          if (rule.pattern.test(url.hostname)) {
+            keepParams = rule.keep;
+            break;
+          }
+        }
+
+        for (const key of [...url.searchParams.keys()]) {
+          if (!keepParams.has(key)) {
+            url.searchParams.delete(key);
+          }
+        }
+
+        url.hash = '';
+        url.pathname = url.pathname.replace(/\/+$/, '') || '/';
+
+        if (/amazon\.com$/i.test(url.hostname)) {
+          const dpMatch = url.pathname.match(/\/dp\/([A-Z0-9]{10})/i);
+          if (dpMatch) {
+            url.pathname = `/dp/${dpMatch[1]}`;
+          }
+        }
+
+        let result = url.toString();
+        result = result.replace(/\/$/, '');
+        return result;
+      } catch {
+        return input;
+      }
+    }
+
+    const bookmarkletJs =
+      "(function(){" +
+        "function c(i){" +
+          "try{" +
+            "let cur=i;" +
+            "for(let d=0;d<3;d++){" +
+              "const p=new URL(cur);" +
+              "const n=p.searchParams.get('share_url')||p.searchParams.get('u')||p.searchParams.get('url');" +
+              "if(n&&/^https?:/i.test(decodeURIComponent(n))){" +
+                "cur=decodeURIComponent(n);" +
+                "continue;" +
+              "}" +
+              "break;" +
+            "}" +
+            "const u=new URL(cur);" +
+            "u.protocol='https:';" +
+            "u.hostname=u.hostname.replace(/^www\\./i,'').replace(/^m\\./i,'').toLowerCase();" +
+            "const rules=[" +
+              "{pattern:/(^|\\.)youtube\\.com$/i,keep:new Set(['v','list'])}," +
+              "{pattern:/(^|\\.)youtu\\.be$/i,keep:new Set()}," +
+              "{pattern:/(^|\\.)google\\.com$/i,keep:new Set(['q'])}," +
+              "{pattern:/(^|\\.)maps\\.google\\.com$/i,keep:new Set(['q'])}," +
+              "{pattern:/(^|\\.)amazon\\.com$/i,keep:new Set(['k'])}" +
+            "];" +
+            "let keep=new Set();" +
+            "for(const rule of rules){" +
+              "if(rule.pattern.test(u.hostname)){" +
+                "keep=rule.keep;" +
+                "break;" +
+              "}" +
+            "}" +
+            "for(const k of [...u.searchParams.keys()]){" +
+              "if(!keep.has(k)) u.searchParams.delete(k);" +
+            "}" +
+            "u.hash='';" +
+            "u.pathname=u.pathname.replace(/\\/+$/,'')||'/';" +
+            "if(/amazon\\.com$/i.test(u.hostname)){" +
+              "const m=u.pathname.match(/\\/dp\\/([A-Z0-9]{10})/i);" +
+              "if(m) u.pathname='/dp/'+m[1];" +
+            "}" +
+            "let r=u.toString().replace(/\\/$/,'');" +
+            "return r;" +
+          "}catch{" +
+            "return i;" +
+          "}" +
+        "}" +
+        "const cleaned=c(location.href);" +
+        "function fallback(){window.prompt('Copy this cleaned URL:',cleaned)}" +
+        "if(navigator.clipboard&&window.isSecureContext){" +
+          "navigator.clipboard.writeText(cleaned).then(" +
+            "function(){alert('Clean URL copied to clipboard:\\n\\n'+cleaned)}," +
+            "function(){fallback()}" +
+          ");" +
+        "}else{" +
+          "fallback();" +
+        "}" +
+      "})();";
+
+    const bookmarkletHref = 'javascript:' + bookmarkletJs;
+
+    const link = document.getElementById('bookmarkletLink');
+    const codeBox = document.getElementById('bookmarkletCode');
+    const status = document.getElementById('copyStatus');
+    const sampleInput = document.getElementById('sampleInput');
+    const sampleOutput = document.getElementById('sampleOutput');
+
+    link.href = bookmarkletHref;
+    codeBox.value = bookmarkletHref;
+
+    function previewCleanup() {
+      sampleOutput.value = cleanUrlString(sampleInput.value);
+    }
+
+    async function copyText(text, message) {
+      try {
+        await navigator.clipboard.writeText(text);
+        status.textContent = message;
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          status.textContent = message;
+        } catch {
+          status.textContent = 'Copy failed. You can still select and copy it manually.';
+        }
+        ta.remove();
+      }
+    }
+
+    document.getElementById('runPreview').addEventListener('click', previewCleanup);
+    document.getElementById('copyCode').addEventListener('click', () => copyText(codeBox.value, 'Bookmarklet code copied.'));
+    document.getElementById('copyBookmarklet').addEventListener('click', () => copyText(codeBox.value, 'Bookmarklet code copied for a new bookmark.'));
+    sampleInput.addEventListener('input', previewCleanup);
+
+    previewCleanup();
+  </script>
+</body>
+</html>
